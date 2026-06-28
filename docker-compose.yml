@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: logistics_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: logistics_app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=redis        # override to use Docker service name
+    depends_on:
+      - redis
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data        # mount data folder so JSON is accessible
