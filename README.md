@@ -36,6 +36,11 @@ logistics-assistant/
 
 ## Quick Start
 
+### 0. Clone the repository
+```bash
+git clone https://github.com/SuchitraYadav19/logistics-assistant.git
+cd logistics-assistant
+
 ### 1. Local (without Docker)
 ```bash
 # Install dependencies
@@ -84,6 +89,8 @@ Returns an AI-generated summary for a shipment.
 }
 ```
 
+## Screenshots
+![img.png](img.png)
 **Sample IDs with delays (WTH/HLD):**
 - `TRK35874LOG` — Weather delay at Incheon
 - `TRK96831LOG` — Hold + Weather delay
@@ -93,17 +100,3 @@ Returns an AI-generated summary for a shipment.
 ```bash
 pytest tests/ -v
 ```
-
-## Design Decisions (for interviews)
-
-**Why pre-process before the AI call?**
-The `extract_shipment_context()` function extracts only the relevant fields (last location, exception events) before sending to Gemini. This reduces token usage, makes the prompt deterministic, and means the LLM focuses on communication — not data parsing.
-
-**Why Redis caching?**
-Shipment status doesn't change every second. Caching AI responses for 10 minutes eliminates redundant LLM API calls for the same order, reducing latency and cost. Cache failure is non-fatal — the app falls through to a fresh Gemini call.
-
-**Why custom exceptions?**
-`ShipmentNotFoundException` and `AIServiceException` map to specific HTTP status codes (404, 503) via FastAPI exception handlers. This keeps route handlers clean and error responses consistent.
-
-**Why `lru_cache` on `load_logistics_data`?**
-The JSON file is read once per process and held in memory — simulating a DB connection pool pattern. In production this would be replaced with an async DB call.
