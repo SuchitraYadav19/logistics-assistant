@@ -137,10 +137,7 @@ async def test_get_shipment_summary_success(monkeypatch):
     monkeypatch.setattr("app.main.set_cached_summary", AsyncMock(return_value=None))
 
     # Mock Gemini: return our canned response
-    async def mock_generate_ai_summary(*args, **kwargs):
-        return MOCK_AI_RESPONSE
-
-    monkeypatch.setattr(ai_summary, "generate_ai_summary", mock_generate_ai_summary)
+    monkeypatch.setattr("app.main.generate_ai_summary", AsyncMock(return_value=MOCK_AI_RESPONSE))
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
